@@ -1,0 +1,18 @@
+### send fetch song request
+GET http://localhost:3000/songs
+### find song request
+GET http://localhost:3000/songs/1
+### create new song request
+POST http://localhost:3000/songs
+Content-Type: application/json
+
+{
+  "title": "lasting lover",
+  "artists": ["dwi"],
+  "releaseDate": "2022-09-29",
+  "duration": "02:34"
+}
+### update song request
+PUT http://localhost:3000/songs/1
+### delete song request
+DELETE http://localhost:3000/songs/1

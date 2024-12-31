@@ -1,3 +1,4 @@
+GET http://localhost:3000
 ###! get all songs
 GET http://localhost:3000/songs
 ###! get one song
@@ -8,7 +9,7 @@ Content-Type: application/json
 
 {
   "title": "lasting lover",
-  "artists": ["dwi"],
+  "artists": ["muhammad","dwi","susanto"],
   "releaseDate": "2022-09-29",
   "duration": "02:34"
 }

@@ -2,7 +2,7 @@ GET http://localhost:3000
 ###! get all songs
 GET http://localhost:3000/songs
 ###! get one song
-GET http://localhost:3000/songs/1s
+GET http://localhost:3000/songs/1
 ###! create new song request
 POST http://localhost:3000/songs
 Content-Type: application/json

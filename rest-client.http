@@ -1,9 +1,8 @@
-GET http://localhost:3000
-### send fetch song request
+###! get all songs
 GET http://localhost:3000/songs
-### find song request
-GET http://localhost:3000/songs/1
-### create new song request
+###! get one song
+GET http://localhost:3000/songs/1s
+###! create new song request
 POST http://localhost:3000/songs
 Content-Type: application/json
 
@@ -13,7 +12,7 @@ Content-Type: application/json
   "releaseDate": "2022-09-29",
   "duration": "02:34"
 }
-### update song request
+###! update song request
 PUT http://localhost:3000/songs/1
-### delete song request
+###! delete song request
 DELETE http://localhost:3000/songs/1

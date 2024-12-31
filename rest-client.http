@@ -1,3 +1,4 @@
+GET http://localhost:3000
 ### send fetch song request
 GET http://localhost:3000/songs
 ### find song request

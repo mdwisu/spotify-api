@@ -1,0 +1,27 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    develop:
+      watch:
+        - action: sync
+          path: .
+          target: /usr/src/app
+          ignore:
+            - node_modules/
+        - action: rebuild
+          path: package.json
+    container_name: nest-app-dev
+    ports:
+      - 3000:3000
+    environment:
+      - NODE_ENV=development
+    networks:
+      - nestjs_network
+    volumes:
+      - /usr/src/app/node_modules # Jangan mount volume aplikasi, biarkan di dalam image
+
+networks:
+  nestjs_network:
+    driver: bridge

@@ -9,7 +9,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { PlaylistsModule } from './playlists/playlists.module';
 import { UsersModule } from './users/users.module';
 import { User } from './users/user.entity';
-import { Playlist } from './playlists/playlist.entity';
+import { Playlist } from './playlists/entities/playlist.entity';
 import { Song } from './songs/song.entity';
 import { Artist } from './artists/artist.entity';
 import { TestModule } from './test/test.module';

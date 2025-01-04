@@ -7,7 +7,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Playlist } from '../playlists/playlist.entity';
+import { Playlist } from '../playlists/entities/playlist.entity';
 import { Artist } from '../artists/artist.entity';
 
 @Entity()
@@ -18,11 +18,11 @@ export class Song {
   @Column()
   title: string;
 
-  @Column()
+  @Column('date')
   releaseDate: Date;
 
-  @Column()
-  duration: Date;
+  @Column('int') //menyimpan hanya tanggal tanpa waktu
+  duration: number;
 
   @ManyToMany(() => Artist, (artist) => artist.songs)
   @JoinTable({ name: 'songs_artists' })

@@ -30,5 +30,5 @@ export class CreatePlaylistDto {
   })
   @IsNumber()
   @IsNotEmpty()
-  readonly userId: number;
+  readonly user: number;
 }

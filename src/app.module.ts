@@ -7,12 +7,12 @@ import { SongsController } from './songs/songs.controller';
 import { DevConfigService } from './common/providers/DevConfigService';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PlaylistsModule } from './playlists/playlists.module';
-import { UsersModule } from './users/users.module';
-import { User } from './users/user.entity';
-import { Playlist } from './playlists/entities/playlist.entity';
 import { Song } from './songs/song.entity';
-import { Artist } from './artists/artist.entity';
+import { Playlist } from './playlists/entities/playlist.entity';
 import { TestModule } from './test/test.module';
+import { User } from './users/entities/user.entity';
+import { UsersModule } from './users/users.module';
+import { Artist } from './artists/artist.entity';
 
 const devConfig = { port: 3000 };
 const proConfig = { port: 400 };
@@ -41,6 +41,7 @@ const proConfig = { port: 400 };
       provide: DevConfigService,
       useClass: DevConfigService,
     },
+    // factory providers
     {
       provide: 'CONFIG',
       useFactory: () => {

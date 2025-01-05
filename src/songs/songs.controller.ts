@@ -36,21 +36,23 @@ export class SongsController {
     try {
       return this.songService.findAll();
     } catch (error) {
-      throw new HttpException('error', HttpStatus.INTERNAL_SERVER_ERROR, {
-        cause: error,
-      });
+      throw new HttpException(
+        'Server error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        {
+          cause: error,
+        },
+      );
     }
   }
   @Get(':id')
   findOne(
-    @Param(
-      'id',
-      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE }),
-    )
-    id: number,
+    @Param('id', ParseIntPipe)
+    id: string,
   ) {
     return `This action returns a #${typeof id} song`;
   }
+
   @Put(':id')
   update(@Param('id') id: string) {
     return `This action updates a #${id} song`;

@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Playlist } from './entities/playlist.entity';
 import { In, Repository } from 'typeorm';
 import { Song } from '../songs/song.entity';
-import { User } from '../users/user.entity';
+import { User } from '../users/entities/user.entity';
 import { CreatePlaylistDto } from './dto/create-playlist.dto';
 
 @Injectable()
@@ -37,13 +37,11 @@ export class PlaylistsService {
 
     const user = await this.userRepository.findOne({
       where: {
-        id: createPlaylistDto.userId,
+        id: createPlaylistDto.user,
       },
     });
     if (!user) {
-      throw new NotFoundException(
-        `User not found: ${createPlaylistDto.userId}`,
-      );
+      throw new NotFoundException(`User not found: ${createPlaylistDto.user}`);
     }
     playlist.user = user;
 

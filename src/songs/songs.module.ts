@@ -17,7 +17,7 @@ import { connection } from '../common/constants/connection';
     //   provide: SongsService,
     //   useClass: SongsService,
     // },
-    //! value provider
+    //! value mock provider
     // {
     //   provide: SongsService,
     //   useValue: mockSongsService,

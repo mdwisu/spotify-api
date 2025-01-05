@@ -1,10 +1,8 @@
 import {
   Column,
   Entity,
-  JoinColumn,
   JoinTable,
   ManyToMany,
-  ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 import { Playlist } from '../playlists/entities/playlist.entity';
@@ -28,7 +26,6 @@ export class Song {
   @JoinTable({ name: 'songs_artists' })
   artists: Artist[];
 
-  @ManyToOne(() => Playlist, (playlist) => playlist.songs)
-  @JoinColumn({ name: 'playlistId' })
-  playlist: Playlist;
+  @ManyToMany(() => Playlist, (playlist) => playlist.songs)
+  playlist: Playlist[];
 }

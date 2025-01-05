@@ -1,4 +1,9 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import {
+  MiddlewareConsumer,
+  Module,
+  NestModule,
+  ValidationPipe,
+} from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { SongsModule } from './songs/songs.module';
@@ -7,13 +12,14 @@ import { SongsController } from './songs/songs.controller';
 import { DevConfigService } from './common/providers/DevConfigService';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { PlaylistsModule } from './playlists/playlists.module';
-import { Song } from './songs/song.entity';
+import { Song } from './songs/entities/song.entity';
 import { Playlist } from './playlists/entities/playlist.entity';
 import { TestModule } from './test/test.module';
 import { User } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
 import { Artist } from './artists/artist.entity';
 import { DataSource } from 'typeorm';
+import { APP_PIPE } from '@nestjs/core';
 
 const devConfig = { port: 3000 };
 const proConfig = { port: 400 };
@@ -48,6 +54,11 @@ const proConfig = { port: 400 };
       useFactory: () => {
         return process.env.NODE_ENV === 'development' ? devConfig : proConfig;
       },
+    },
+    // pipe
+    {
+      provide: APP_PIPE,
+      useClass: ValidationPipe,
     },
   ],
 })

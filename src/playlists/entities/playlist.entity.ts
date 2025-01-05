@@ -7,7 +7,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { Song } from '../../songs/song.entity';
+import { Song } from '../../songs/entities/song.entity';
 import { User } from '../../users/entities/user.entity';
 
 @Entity()

@@ -5,16 +5,16 @@ import {
   Get,
   HttpException,
   HttpStatus,
-  Inject,
   Param,
   ParseIntPipe,
+  Patch,
   Post,
-  Put,
   Scope,
 } from '@nestjs/common';
 import { SongsService } from './songs.service';
 import { CreateSongDto } from './dto/create-song-dto';
-import { Connection } from '../common/constants/connection';
+import { UpdateSongDto } from './dto/update-song.dto';
+// import { Connection } from '../common/constants/connection';
 
 @Controller({
   path: 'songs',
@@ -23,9 +23,9 @@ import { Connection } from '../common/constants/connection';
 export class SongsController {
   constructor(
     private songService: SongsService,
-    @Inject('CONNECTION') private connection: Connection,
+    // @Inject('CONNECTION') private connection: Connection,
   ) {
-    console.log('this is connection string', this.connection);
+    // console.log('this is connection string', this.connection);
   }
   @Post()
   create(@Body() createSongDto: CreateSongDto) {
@@ -47,18 +47,22 @@ export class SongsController {
   }
   @Get(':id')
   findOne(
-    @Param('id', ParseIntPipe)
+    @Param(
+      'id',
+      new ParseIntPipe({ errorHttpStatusCode: HttpStatus.NOT_ACCEPTABLE }),
+    )
     id: string,
   ) {
-    return `This action returns a #${typeof id} song`;
+    return this.songService.findOne(+id);
   }
 
-  @Put(':id')
-  update(@Param('id') id: string) {
-    return `This action updates a #${id} song`;
+  @Patch(':id')
+  update(@Param('id') id: string, @Body() updateSongDto: UpdateSongDto) {
+    return this.songService.update(+id, updateSongDto);
   }
+
   @Delete(':id')
   delete(@Param('id') id: string) {
-    return `This action removes a #${id} song`;
+    return this.songService.remove(+id);
   }
 }

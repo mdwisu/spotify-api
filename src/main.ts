@@ -6,7 +6,6 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-  // app.useGlobalPipes(new ValidationPipe());
   // global middleware
   // app.use(new LoggerMiddleware().use);
   const config = new DocumentBuilder()

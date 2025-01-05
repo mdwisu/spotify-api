@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Playlist } from './entities/playlist.entity';
 import { In, Repository } from 'typeorm';
-import { Song } from '../songs/song.entity';
+import { Song } from '../songs/entities/song.entity';
 import { User } from '../users/entities/user.entity';
 import { CreatePlaylistDto } from './dto/create-playlist.dto';
 

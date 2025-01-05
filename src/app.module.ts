@@ -13,6 +13,7 @@ import { TestModule } from './test/test.module';
 import { User } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
 import { Artist } from './artists/artist.entity';
+import { DataSource } from 'typeorm';
 
 const devConfig = { port: 3000 };
 const proConfig = { port: 400 };
@@ -51,6 +52,9 @@ const proConfig = { port: 400 };
   ],
 })
 export class AppModule implements NestModule {
+  constructor(private dataSource: DataSource) {
+    console.log('dbname', dataSource.driver.database);
+  }
   configure(consumer: MiddlewareConsumer) {
     // consumer.apply(LoggerMiddleware).forRoutes('songs'); // option no 1
     // consumer

@@ -10,7 +10,7 @@ export class SongsService {
   private readonly songs = [];
   create(song: any) {
     // save the song in the database
-    this.songs.push(song);
+    // this.songs.push(song);
     return this.songs;
   }
   findAll() {

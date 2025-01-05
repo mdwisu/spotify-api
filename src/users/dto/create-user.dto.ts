@@ -16,4 +16,8 @@ export class CreateUserDto {
   @IsString()
   @IsNotEmpty()
   password: string;
+
+  // playlist
+  @IsNotEmpty()
+  playlists: string[];
 }

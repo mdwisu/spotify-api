@@ -3,26 +3,30 @@ import {
   InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
 import { Repository } from 'typeorm';
+import { CreateUserDto } from './schemas/user.schema';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
   ) {}
-  create(createUserDto: CreateUserDto) {
-    const existUser = this.userRepository.findOneBy({
+  async create(createUserDto: CreateUserDto) {
+    const existUser = await this.userRepository.findOneBy({
       email: createUserDto.email,
     });
+    return;
     if (existUser) {
+      throw new InternalServerErrorException(
+        `User with email ${createUserDto.email} already exists`,
+      );
     }
 
-    const user = this.userRepository.create(createUserDto);
-    return this.userRepository.save(user);
+    // const user = this.userRepository.create(createUserDto);
+    // return this.userRepository.save(user);
   }
 
   findAll() {

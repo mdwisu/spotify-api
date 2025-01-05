@@ -1,5 +1,5 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
-import { Playlist } from '../playlists/entities/playlist.entity';
+import { Playlist } from '../../playlists/entities/playlist.entity';
 
 @Entity('users')
 export class User {
@@ -12,7 +12,7 @@ export class User {
   @Column()
   lastName: string;
 
-  @Column()
+  @Column({ unique: true })
   email: string;
 
   @Column()

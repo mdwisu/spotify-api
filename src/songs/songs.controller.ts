@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  DefaultValuePipe,
   Delete,
   Get,
   HttpException,
@@ -9,11 +10,14 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Query,
   Scope,
 } from '@nestjs/common';
 import { SongsService } from './songs.service';
 import { CreateSongDto } from './dto/create-song-dto';
 import { UpdateSongDto } from './dto/update-song.dto';
+import { Pagination } from 'nestjs-typeorm-paginate';
+import { Song } from './entities/song.entity';
 // import { Connection } from '../common/constants/connection';
 
 @Controller({
@@ -32,9 +36,35 @@ export class SongsController {
     return this.songService.create(createSongDto);
   }
   @Get()
-  findAll() {
+  findAll(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
+    @Query('limit', new DefaultValuePipe(1), ParseIntPipe) limit: number = 10,
+  ) {
     try {
-      return this.songService.findAll();
+      limit = limit > 100 ? 100 : limit;
+      return this.songService.findAll({ page, limit });
+    } catch (error) {
+      throw new HttpException(
+        'Server error',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+        {
+          cause: error,
+        },
+      );
+    }
+  }
+  @Get('/paginate')
+  findAllPaginate(
+    @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
+    @Query('limit', new DefaultValuePipe(1), ParseIntPipe) limit: number = 10,
+  ): Promise<Pagination<Song>> {
+    try {
+      limit = limit > 100 ? 100 : limit;
+      return this.songService.paginate({
+        page,
+        limit,
+        route: 'http://songs.com/cats',
+      });
     } catch (error) {
       throw new HttpException(
         'Server error',

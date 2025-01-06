@@ -20,21 +20,29 @@ import { UsersModule } from './users/users.module';
 import { Artist } from './artists/artist.entity';
 import { DataSource } from 'typeorm';
 import { APP_PIPE } from '@nestjs/core';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 
 const devConfig = { port: 3000 };
 const proConfig = { port: 400 };
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres', // ganti dengan username database anda
-      password: 'postgredwi', // ganti dengan password database anda
-      database: 'db_spotify',
-      entities: [User, Playlist, Song, Artist],
-      synchronize: true,
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        host: configService.get<string>('DATABASE_HOST'),
+        port: configService.get<number>('DATABASE_PORT'),
+        username: configService.get<string>('DATABASE_USERNAME'),
+        password: configService.get<string>('DATABASE_PASSWORD'),
+        database: configService.get<string>('DATABASE_NAME'),
+        entities: [User, Playlist, Song, Artist],
+        synchronize: true, // Jangan gunakan di production
+      }),
     }),
     SongsModule,
     PlaylistsModule,

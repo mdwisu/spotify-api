@@ -5,7 +5,7 @@ import { connection } from '../common/constants/connection';
 import { Song } from './entities/song.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
-import { Artist } from '../artists/artist.entity';
+import { Artist } from '../artists/entities/artist.entity';
 
 // const mockSongsService = {
 //   findAll: () => [{ id: 1, title: 'song 1', artists: ['artist 1'] }],

@@ -38,8 +38,8 @@ export class UsersController {
   }
 
   @Get(':id')
-  findByEmail(@Param('id') id: string) {
-    return this.usersService.findByEmail(id);
+  findByEmail(@Param('id') id: number) {
+    return this.usersService.findOne(id);
   }
 
   @Patch(':id')

@@ -1,4 +1,4 @@
-import { HttpException, HttpStatus, Injectable, Scope } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { Song } from './entities/song.entity';
@@ -9,12 +9,9 @@ import {
   Pagination,
   IPaginationOptions,
 } from 'nestjs-typeorm-paginate';
-import { ConfigService } from '@nestjs/config';
-import { Artist } from '../artists/artist.entity';
+import { Artist } from '../artists/entities/artist.entity';
 
-@Injectable({
-  scope: Scope.DEFAULT, // Scope.TRANSIENT digunakan untuk membuat provider dengan instance yang baru setiap kali provider tersebut di-inject ke dalam kelas lain.
-})
+@Injectable()
 export class SongsService {
   constructor(
     @InjectRepository(Song) private songRepository: Repository<Song>,
@@ -27,12 +24,15 @@ export class SongsService {
         id: In(createSongDto.artists),
       },
     });
-
+    if (artists.length !== createSongDto.artists.length) {
+      throw new HttpException('Artists not found', HttpStatus.NOT_FOUND);
+    }
     const song = this.songRepository.create({
       ...createSongDto,
       artists,
     });
-    console.log('song', song);
+    console.log(song);
+    return;
     return this.songRepository.save(song);
   }
   async findAll({ page, limit }: { page: number; limit: number }) {
@@ -40,6 +40,7 @@ export class SongsService {
       skip: (page - 1) * limit, // Lewati data sesuai halaman
       take: limit, // Ambil jumlah item per halaman
       order: { title: 'ASC' }, // Opsional: Sorting data
+      relations: ['artists'],
     });
     return {
       data,

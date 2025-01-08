@@ -11,7 +11,6 @@ import {
   Patch,
   Post,
   Query,
-  Scope,
 } from '@nestjs/common';
 import { SongsService } from './songs.service';
 import { CreateSongDto } from './dto/create-song-dto';
@@ -22,15 +21,9 @@ import { Song } from './entities/song.entity';
 
 @Controller({
   path: 'songs',
-  scope: Scope.REQUEST, // mengindikasikan bahwa controller ini akan dibuat untuk setiap request HTTP yang diterima.
 })
 export class SongsController {
-  constructor(
-    private songService: SongsService,
-    // @Inject('CONNECTION') private connection: Connection,
-  ) {
-    // console.log('this is connection string', this.connection);
-  }
+  constructor(private songService: SongsService) {}
   @Post()
   create(@Body() createSongDto: CreateSongDto) {
     return this.songService.create(createSongDto);
@@ -38,7 +31,7 @@ export class SongsController {
   @Get()
   findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
-    @Query('limit', new DefaultValuePipe(1), ParseIntPipe) limit: number = 10,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number = 10,
   ) {
     try {
       limit = limit > 100 ? 100 : limit;
@@ -56,7 +49,7 @@ export class SongsController {
   @Get('/paginate')
   findAllPaginate(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number = 1,
-    @Query('limit', new DefaultValuePipe(1), ParseIntPipe) limit: number = 10,
+    @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number = 10,
   ): Promise<Pagination<Song>> {
     try {
       limit = limit > 100 ? 100 : limit;

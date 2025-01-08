@@ -17,7 +17,7 @@ import { Playlist } from './playlists/entities/playlist.entity';
 import { TestModule } from './test/test.module';
 import { User } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
-import { Artist } from './artists/artist.entity';
+import { Artist } from './artists/entities/artist.entity';
 import { DataSource } from 'typeorm';
 import { APP_PIPE } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';

@@ -43,13 +43,13 @@ export class UsersService {
     return this.userRepository.find();
   }
 
-  // async findOne(id: number) {
-  //   const user = await this.userRepository.findOne({ where: { id } });
-  //   if (!user) {
-  //     throw new NotFoundException(`User with ID ${id} not found`);
-  //   }
-  //   return user;
-  // }
+  async findOne(id: number) {
+    const user = await this.userRepository.findOne({ where: { id } });
+    if (!user) {
+      throw new NotFoundException(`User with ID ${id} not found`);
+    }
+    return user;
+  }
 
   async findByEmail(email: string) {
     const user = await this.userRepository.findOneBy({ email });

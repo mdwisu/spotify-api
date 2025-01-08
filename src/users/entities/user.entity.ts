@@ -1,5 +1,12 @@
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 import { Playlist } from '../../playlists/entities/playlist.entity';
+import { Artist } from '../../artists/artist.entity';
 
 @Entity('users')
 export class User {
@@ -18,6 +25,12 @@ export class User {
   @Column()
   password: string;
 
-  @OneToMany(() => Playlist, (playlist) => playlist.user)
-  playlists: Playlist[];
+  @Column()
+  role: string;
+
+  @OneToOne(() => Artist, (artist) => artist.user)
+  artist: Artist;
+
+  // @OneToMany(() => Playlist, (playlist) => playlist.user)
+  // playlists: Playlist[];
 }

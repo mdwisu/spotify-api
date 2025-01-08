@@ -43,7 +43,7 @@ export class PlaylistsService {
     if (!user) {
       throw new NotFoundException(`User not found: ${createPlaylistDto.user}`);
     }
-    playlist.user = user;
+    // playlist.user = user;
 
     return this.playlistRepository.save(playlist);
   }

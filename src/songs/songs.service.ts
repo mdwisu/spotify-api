@@ -1,6 +1,6 @@
 import { HttpException, HttpStatus, Injectable, Scope } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Song } from './entities/song.entity';
 import { CreateSongDto } from './dto/create-song-dto';
 import { UpdateSongDto } from './dto/update-song.dto';
@@ -10,6 +10,7 @@ import {
   IPaginationOptions,
 } from 'nestjs-typeorm-paginate';
 import { ConfigService } from '@nestjs/config';
+import { Artist } from '../artists/artist.entity';
 
 @Injectable({
   scope: Scope.DEFAULT, // Scope.TRANSIENT digunakan untuk membuat provider dengan instance yang baru setiap kali provider tersebut di-inject ke dalam kelas lain.
@@ -17,17 +18,21 @@ import { ConfigService } from '@nestjs/config';
 export class SongsService {
   constructor(
     @InjectRepository(Song) private songRepository: Repository<Song>,
-    private configService: ConfigService,
+    @InjectRepository(Artist) private artistRepository: Repository<Artist>,
   ) {}
 
-  create(createSongDto: CreateSongDto) {
-    const song = new Song();
-    song.title = createSongDto.title;
-    song.artists = createSongDto.artists;
-    song.duration = createSongDto.duration;
-    song.lyrics = createSongDto.lyrics;
-    song.releaseDate = createSongDto.releaseDate;
+  async create(createSongDto: CreateSongDto) {
+    const artists = await this.artistRepository.find({
+      where: {
+        id: In(createSongDto.artists),
+      },
+    });
 
+    const song = this.songRepository.create({
+      ...createSongDto,
+      artists,
+    });
+    console.log('song', song);
     return this.songRepository.save(song);
   }
   async findAll({ page, limit }: { page: number; limit: number }) {
@@ -51,11 +56,6 @@ export class SongsService {
   }
 
   findOne(id: number) {
-    const dbHost = this.configService.get<string>('database.host');
-    const inidarienvdev = this.configService.get<string>('INIDARIENVDEV');
-    console.log(dbHost);
-    console.log(inidarienvdev);
-    return;
     return this.songRepository.findOneBy({ id });
   }
 

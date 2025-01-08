@@ -19,10 +19,10 @@ export class Playlist {
   name: string;
 
   @ManyToMany(() => Song, (song) => song.playlist)
-  @JoinTable()
+  @JoinTable({ name: 'playlists_songs' })
   songs: Song[];
 
-  @ManyToOne(() => User, (user) => user.playlists)
-  @JoinColumn({ name: 'userId' })
-  user: User;
+  // @ManyToOne(() => User, (user) => user.playlists)
+  // @JoinColumn({ name: 'userId' })
+  // user: User;
 }

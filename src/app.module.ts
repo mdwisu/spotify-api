@@ -19,8 +19,11 @@ import { User } from './users/entities/user.entity';
 import { UsersModule } from './users/users.module';
 import { Artist } from './artists/artist.entity';
 import { DataSource } from 'typeorm';
-import { APP_PIPE } from '@nestjs/core';
+import { APP_GUARD, APP_PIPE } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AuthModule } from './auth/auth.module';
+import { AuthGuard } from './guards/auth.guard';
+import { RoleGuard } from './guards/role.guard';
 
 const devConfig = { port: 3000 };
 const proConfig = { port: 400 };
@@ -48,6 +51,7 @@ const proConfig = { port: 400 };
     PlaylistsModule,
     UsersModule,
     TestModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [
@@ -55,6 +59,10 @@ const proConfig = { port: 400 };
     {
       provide: DevConfigService,
       useClass: DevConfigService,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
     },
     // factory providers
     {

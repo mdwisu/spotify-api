@@ -29,7 +29,6 @@ export class UsersController {
       createUserDto.email,
       createUserDto.password,
       createUserDto.role,
-      createUserDto.playlists,
     );
   }
 
@@ -39,8 +38,8 @@ export class UsersController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
+  findByEmail(@Param('id') id: string) {
+    return this.usersService.findByEmail(id);
   }
 
   @Patch(':id')

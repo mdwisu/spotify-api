@@ -2,33 +2,41 @@ import {
   Body,
   Controller,
   Get,
-  HttpCode,
-  HttpStatus,
   Post,
   Request,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { AuthGuard } from '../guards/auth.guard';
-import { Public } from './public.decorator';
-import { Roles } from './decorators/roles.decorator';
+import { LocalAuthGuard } from '../guards/local-auth.guard';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { RoleGuard } from '../guards/role.guard';
+import { Roles } from './decorators/roles.decorator';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @HttpCode(HttpStatus.OK)
-  @Public()
+  @UseGuards(LocalAuthGuard)
   @Post('login')
-  signIn(@Body() signInDto: Record<string, any>) {
-    return this.authService.signIn(signInDto.email, signInDto.password);
+  async login(@Request() req) {
+    return this.authService.login(req.user);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Get('profile')
-  @UseGuards(AuthGuard, RoleGuard)
-  @Roles(['admin'])
   getProfile(@Request() req) {
     return req.user;
+  }
+
+  @UseGuards(JwtAuthGuard, RoleGuard)
+  @Roles(['admin'])
+  @Get('me')
+  getMe(@Request() req) {
+    return req.user;
+  }
+
+  @Post('validate')
+  async validate(@Body() body) {
+    return this.authService.validateUser(body.email, body.password);
   }
 }

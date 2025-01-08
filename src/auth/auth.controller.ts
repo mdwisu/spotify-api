@@ -8,13 +8,34 @@ import {
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from '../guards/local-auth.guard';
-import { JwtAuthGuard } from '../guards/jwt-auth.guard';
-import { RoleGuard } from '../guards/role.guard';
 import { Roles } from './decorators/roles.decorator';
+import { RolesGuard } from '../guards/roles.guard';
+import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
+
+  @Get('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
+  admin(@Request() req) {
+    return `admin, ${req.user}`;
+  }
+
+  @Get('user')
+  @UseGuards(RolesGuard, JwtAuthGuard)
+  @Roles('user')
+  user() {
+    return 'user';
+  }
+
+  @Get('adminuser')
+  @UseGuards(RolesGuard, JwtAuthGuard)
+  @Roles('admin', 'user')
+  adminuser() {
+    return 'adminuser';
+  }
 
   @UseGuards(LocalAuthGuard)
   @Post('login')
@@ -28,8 +49,8 @@ export class AuthController {
     return req.user;
   }
 
-  @UseGuards(JwtAuthGuard, RoleGuard)
-  @Roles(['admin'])
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles('admin')
   @Get('me')
   getMe(@Request() req) {
     return req.user;

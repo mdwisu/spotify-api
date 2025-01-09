@@ -37,6 +37,11 @@ export class AuthController {
     return 'adminuser';
   }
 
+  @Post('register')
+  async register(@Body() body) {
+    return this.authService.register(body);
+  }
+
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Request() req) {

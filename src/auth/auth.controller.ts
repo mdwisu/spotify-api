@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   Post,
+  Req,
   Request,
   UseGuards,
 } from '@nestjs/common';
@@ -11,6 +12,8 @@ import { LocalAuthGuard } from '../guards/local-auth.guard';
 import { Roles } from './decorators/roles.decorator';
 import { RolesGuard } from '../guards/roles.guard';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
+import { GoogleAuthGuard } from '../guards/google-auth.guard';
+import { GithubAuthGuard } from '../guards/github-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -64,5 +67,35 @@ export class AuthController {
   @Post('validate')
   async validate(@Body() body) {
     return this.authService.validateUser(body.email, body.password);
+  }
+
+  @Get('google')
+  @UseGuards(GoogleAuthGuard)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async googleAuth(@Req() req) {
+    // Hanya memulai proses login
+  }
+  @Get('google/callback')
+  @UseGuards(GoogleAuthGuard)
+  async googleAuthRedirect(@Req() req) {
+    return {
+      message: 'User info from Google',
+      user: req.user,
+    };
+  }
+  @Get('github')
+  @UseGuards(GithubAuthGuard)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  async githubAuth(@Req() req) {
+    // Hanya memulai proses login
+  }
+
+  @Get('github/callback')
+  @UseGuards(GithubAuthGuard)
+  async githubAuthRedirect(@Req() req) {
+    return {
+      message: 'User info from GitHub',
+      user: req.user,
+    };
   }
 }

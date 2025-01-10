@@ -45,6 +45,12 @@ export class AuthController {
     return this.authService.register(body);
   }
 
+  @Post('set-password')
+  async setPassword(@Body() body: { email: string; password: string }) {
+    const { email, password } = body;
+    return this.authService.setPassword(email, password);
+  }
+
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Request() req) {
@@ -58,7 +64,7 @@ export class AuthController {
   }
 
   @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles('admin')
+  @Roles('user')
   @Get('me')
   getMe(@Request() req) {
     return req.user;
@@ -78,11 +84,9 @@ export class AuthController {
   @Get('google/callback')
   @UseGuards(GoogleAuthGuard)
   async googleAuthRedirect(@Req() req) {
-    return {
-      message: 'User info from Google',
-      user: req.user,
-    };
+    return this.authService.findOrCreateOAuthUser(req.user, 'google');
   }
+
   @Get('github')
   @UseGuards(GithubAuthGuard)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -93,9 +97,6 @@ export class AuthController {
   @Get('github/callback')
   @UseGuards(GithubAuthGuard)
   async githubAuthRedirect(@Req() req) {
-    return {
-      message: 'User info from GitHub',
-      user: req.user,
-    };
+    return this.authService.findOrCreateOAuthUser(req.user, 'github');
   }
 }

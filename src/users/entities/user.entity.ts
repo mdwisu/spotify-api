@@ -22,11 +22,17 @@ export class User {
   @Column({ unique: true })
   email: string;
 
-  @Column()
+  @Column({ nullable: true })
   password: string;
 
-  @Column()
+  @Column({ default: 'user' })
   role: string;
+
+  @Column({ nullable: true, unique: true })
+  googleId: string;
+
+  @Column({ nullable: true, unique: true })
+  githubId: string;
 
   @OneToOne(() => Artist, (artist) => artist.user)
   artist: Artist;

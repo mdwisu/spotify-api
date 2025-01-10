@@ -20,10 +20,15 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
     // eslint-disable-next-line @typescript-eslint/no-unsafe-function-type
     done: Function,
   ): Promise<any> {
-    const { username, emails } = profile;
+    const { id, displayName, emails, photos } = profile;
+    const nameParts = displayName.split(' ');
+
     const user = {
-      username,
+      githubId: id,
+      firstName: nameParts[0],
+      lastName: nameParts.slice(1).join(' ') || '-',
       email: emails?.[0]?.value,
+      githubPhoto: photos?.[0]?.value,
       accessToken,
     };
     done(null, user);

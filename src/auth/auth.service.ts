@@ -4,6 +4,7 @@ import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -40,9 +41,174 @@ export class AuthService {
       email: user.email,
     });
     if (userExist) {
-      throw new Error('User already exist');
+      if (userExist.password) {
+        return {
+          message: 'User already exist',
+        };
+      } else {
+        return {
+          message:
+            'Email sudah terdaftar sebagai akun google atau github, silakan login dengan itu atau membuat password',
+        };
+      }
     }
     const newUser = this.userRepository.create(user);
     return await this.userRepository.save(newUser);
+  }
+
+  // async setPassword(email: string, newPassword: string) {
+  //   try {
+  //     const user = await this.userRepository.findOneBy({ email });
+  //     if (!user) {
+  //       return {
+  //         message: 'User not found',
+  //       };
+  //     }
+
+  //     if (user.password) {
+  //       return {
+  //         message: 'Password is already set for this account',
+  //       };
+  //     }
+
+  //     // Hash password sebelum menyimpannya
+  //     const hashedPassword = await bcrypt.hash(newPassword, 10);
+
+  //     user.password = hashedPassword;
+  //     await this.userRepository.save(user);
+
+  //     return {
+  //       message: 'Password has been set successfully',
+  //     };
+  //   } catch (error) {
+  //     console.error('Error setting password:', error);
+  //     throw new Error('Failed to set password. Please try again.');
+  //   }
+  // }
+
+  async findOrCreateGoogleUser(googleUser: any) {
+    try {
+      let user = await this.userRepository.findOneBy({
+        email: googleUser.email,
+      });
+      if (!user) {
+        const newUser = this.userRepository.create({
+          email: googleUser.email,
+          firstName: googleUser.firstName,
+          lastName: googleUser.lastName,
+          googleId: googleUser.googleId,
+          role: 'user',
+        });
+        user = await this.userRepository.save(newUser);
+        console.log('Pengguna baru dibuat:', user);
+      } else if (!user.googleId) {
+        // Jika pengguna ada tapi tidak memiliki googleId, tambahkan googleId
+        user.googleId = googleUser.googleId;
+        user = await this.userRepository.save(user); // Perbarui pengguna
+        console.log('Google ID ditambahkan ke pengguna:', user);
+      }
+      // Siapkan payload untuk token JWT
+      const payload = {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+      };
+      // Generate JWT
+      const accessToken = this.jwtService.sign(payload);
+      return {
+        message: 'User logged in successfully',
+        access_token: accessToken,
+        user: payload, // Kembalikan data pengguna untuk frontend jika diperlukan
+      };
+    } catch (error) {
+      console.error(error);
+      throw new Error('Failed to process Google login. Please try again.');
+    }
+  }
+  async findOrCreateGitHubUser(githubUser: any) {
+    try {
+      console.log(githubUser);
+      let user = await this.userRepository.findOneBy({
+        email: githubUser.email,
+      });
+      if (!user) {
+        const newUser = this.userRepository.create({
+          githubId: githubUser.githubId,
+          email: githubUser.email,
+          firstName: githubUser.firstName,
+          lastName: githubUser.lastName,
+        });
+        user = await this.userRepository.save(newUser);
+        console.log('Pengguna baru dibuat:', user);
+      } else if (!user.githubId) {
+        user.githubId = githubUser.githubId;
+        console.log('Github ID ditambahkan ke pengguna:', user);
+      }
+      // Siapkan payload untuk token JWT
+      const payload = {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+      };
+      // Generate JWT
+      const accessToken = this.jwtService.sign(payload);
+      return {
+        message: 'User logged in successfully',
+        access_token: accessToken,
+        user: payload, // Kembalikan data pengguna untuk frontend jika diperlukan
+      };
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async findOrCreateOAuthUser(oauthUser: any, provider: 'google' | 'github') {
+    try {
+      let user = await this.userRepository.findOneBy({
+        email: oauthUser.email,
+      });
+
+      const providerIdField = provider === 'google' ? 'googleId' : 'githubId';
+
+      if (!user) {
+        // Buat pengguna baru jika belum ada
+        const newUser = this.userRepository.create({
+          email: oauthUser.email,
+          firstName: oauthUser.firstName,
+          lastName: oauthUser.lastName,
+          [providerIdField]: oauthUser[providerIdField],
+          role: 'user', // Set default role
+        });
+        user = await this.userRepository.save(newUser);
+        console.log('Pengguna baru dibuat:', user);
+      } else if (!user[providerIdField]) {
+        // Tambahkan ID provider jika belum ada
+        user[providerIdField] = oauthUser[providerIdField];
+        user = await this.userRepository.save(user); // Perbarui pengguna
+        console.log(`${provider} ID ditambahkan ke pengguna:`, user);
+      }
+
+      // Siapkan payload untuk token JWT
+      const payload = {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+      };
+
+      // Generate JWT
+      const accessToken = this.jwtService.sign(payload);
+
+      return {
+        message: 'User logged in successfully',
+        access_token: accessToken,
+        user: payload, // Kembalikan data pengguna untuk frontend jika diperlukan
+      };
+    } catch (error) {
+      console.error(`Error processing ${provider} login:`, error);
+      throw new Error(`Failed to process ${provider} login. Please try again.`);
+    }
   }
 }

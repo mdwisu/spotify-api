@@ -5,6 +5,8 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from '../users/entities/user.entity';
 import * as bcrypt from 'bcrypt';
+import { ConfigService } from '@nestjs/config';
+import { MailerService } from '@nestjs-modules/mailer';
 
 @Injectable()
 export class AuthService {
@@ -13,7 +15,37 @@ export class AuthService {
     private jwtService: JwtService,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private configService: ConfigService,
+    private mailService: MailerService,
   ) {}
+
+  sendMail() {
+    const message = `Forgot your password? If you didn't forget your password, please ignore this email!`;
+
+    this.mailService.sendMail({
+      // from: 'Kingsley Okure <kingsleyokgeorge@gmail.com>',
+      to: 'dwisusanto784@gmail.com',
+      subject: `How to Send Emails with Nodemailer`,
+      text: message,
+    });
+  }
+
+  async setPassword(email: string, newPassword: string) {
+    try {
+      const user = await this.userRepository.findOneBy({ email });
+      if (!user) {
+        return { message: 'User not found' };
+      }
+      // Hash password sebelum menyimpannya
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      user.password = hashedPassword;
+      await this.userRepository.save(user);
+      return { message: 'Password has been set successfully' };
+    } catch (error) {
+      console.error('Error setting password:', error);
+      throw new Error('Failed to set password. Please try again.');
+    }
+  }
 
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
@@ -21,6 +53,23 @@ export class AuthService {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...result } = user;
       return result;
+    } else if (user && !user.password) {
+      const token = this.jwtService.sign({ email });
+      const linkSetPassword = `${this.configService.get('FRONTEND_URL')}/auth/set-password?token=${token}`;
+      await this.mailService.sendMail({
+        to: email,
+        subject: 'Set Password',
+        html:
+          'klik link ini untuk membuat password <a href="' +
+          linkSetPassword +
+          '">Set Password</a>',
+      });
+
+      return {
+        message:
+          'Email ini sudah terdaftar melalui login Google atau GitHub. Silakan klik link di email untuk membuat password Anda.',
+        ignoreJwt: true,
+      };
     }
     return null;
   }
@@ -32,6 +81,7 @@ export class AuthService {
       email: user.email,
       role: user.role,
     };
+    if (user.ignoreJwt) return { message: user.message };
     return {
       access_token: this.jwtService.sign(payload),
     };
@@ -55,36 +105,6 @@ export class AuthService {
     const newUser = this.userRepository.create(user);
     return await this.userRepository.save(newUser);
   }
-
-  // async setPassword(email: string, newPassword: string) {
-  //   try {
-  //     const user = await this.userRepository.findOneBy({ email });
-  //     if (!user) {
-  //       return {
-  //         message: 'User not found',
-  //       };
-  //     }
-
-  //     if (user.password) {
-  //       return {
-  //         message: 'Password is already set for this account',
-  //       };
-  //     }
-
-  //     // Hash password sebelum menyimpannya
-  //     const hashedPassword = await bcrypt.hash(newPassword, 10);
-
-  //     user.password = hashedPassword;
-  //     await this.userRepository.save(user);
-
-  //     return {
-  //       message: 'Password has been set successfully',
-  //     };
-  //   } catch (error) {
-  //     console.error('Error setting password:', error);
-  //     throw new Error('Failed to set password. Please try again.');
-  //   }
-  // }
 
   async findOrCreateGoogleUser(googleUser: any) {
     try {

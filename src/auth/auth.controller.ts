@@ -5,6 +5,7 @@ import {
   Post,
   Req,
   Request,
+  Res,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -14,10 +15,24 @@ import { RolesGuard } from '../guards/roles.guard';
 import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { GoogleAuthGuard } from '../guards/google-auth.guard';
 import { GithubAuthGuard } from '../guards/github-auth.guard';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private jwtService: JwtService,
+  ) {}
+
+  @Get('sendmail')
+  sendMailer(@Res() response: any) {
+    const mail = this.authService.sendMail();
+
+    return response.status(200).json({
+      message: 'success',
+      mail,
+    });
+  }
 
   @Get('admin')
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -46,9 +61,11 @@ export class AuthController {
   }
 
   @Post('set-password')
-  async setPassword(@Body() body: { email: string; password: string }) {
-    const { email, password } = body;
-    return this.authService.setPassword(email, password);
+  async setPassword(@Body() body: { token: string; password: string }) {
+    // Verifikasi JWT token
+    const { email } = this.jwtService.verify(body.token);
+
+    return this.authService.setPassword(email, body.password);
   }
 
   @UseGuards(LocalAuthGuard)

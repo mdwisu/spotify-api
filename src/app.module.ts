@@ -22,6 +22,7 @@ import { DataSource } from 'typeorm';
 import { APP_PIPE } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 const devConfig = { port: 3000 };
 const proConfig = { port: 400 };
@@ -43,6 +44,24 @@ const proConfig = { port: 400 };
         database: configService.get<string>('DATABASE_NAME'),
         entities: [User, Playlist, Song, Artist],
         synchronize: true, // Jangan gunakan di production
+      }),
+    }),
+    MailerModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        transport: {
+          host: 'smtp.gmail.com',
+          port: 587,
+          secure: false, // upgrade later with STARTTLS
+          auth: {
+            user: configService.get<string>('SMTP_USERNAME'),
+            pass: configService.get<string>('SMTP_PASSWORD'),
+          },
+        },
+        defaults: {
+          from: '"nest-modules" <modules@nestjs.com>',
+        },
       }),
     }),
     SongsModule,

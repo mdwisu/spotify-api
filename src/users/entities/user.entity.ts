@@ -1,12 +1,6 @@
-import {
-  Column,
-  Entity,
-  OneToMany,
-  OneToOne,
-  PrimaryGeneratedColumn,
-} from 'typeorm';
-import { Playlist } from '../../playlists/entities/playlist.entity';
+import { Column, Entity, OneToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Artist } from '../../artists/entities/artist.entity';
+import { Exclude } from 'class-transformer';
 
 @Entity('users')
 export class User {
@@ -23,6 +17,7 @@ export class User {
   email: string;
 
   @Column({ nullable: true })
+  @Exclude()
   password: string;
 
   @Column({ default: 'user' })

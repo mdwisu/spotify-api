@@ -6,6 +6,8 @@ import {
   Patch,
   Param,
   Delete,
+  UseInterceptors,
+  ClassSerializerInterceptor,
   // UsePipes,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
@@ -16,19 +18,20 @@ import { Public } from '../auth/public.decorator';
 // import { CreateUserDto, CreateUserSchema } from './schemas/user.schema';
 
 @Controller('users')
+@UseInterceptors(ClassSerializerInterceptor)
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Post()
   @Public()
   // @UsePipes(new ZodValidationPipe(CreateUserSchema))
-  create(@Body() createUserDto: CreateUserDto) {
+  create(@Body() body: CreateUserDto) {
     return this.usersService.create(
-      createUserDto.firstName,
-      createUserDto.lastName,
-      createUserDto.email,
-      createUserDto.password,
-      createUserDto.role,
+      body.firstName,
+      body.lastName,
+      body.email,
+      body.password,
+      body.role,
     );
   }
 

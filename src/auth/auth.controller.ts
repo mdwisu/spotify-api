@@ -1,11 +1,14 @@
 import {
   Body,
+  ClassSerializerInterceptor,
   Controller,
   Get,
+  Param,
   Post,
   Req,
   Request,
   UseGuards,
+  UseInterceptors,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from '../guards/local-auth.guard';
@@ -16,6 +19,7 @@ import { GoogleAuthGuard } from '../guards/google-auth.guard';
 import { GithubAuthGuard } from '../guards/github-auth.guard';
 import { JwtService } from '@nestjs/jwt';
 import { RegisterDto } from './dto/register.dto';
+import * as bcrypt from 'bcrypt';
 
 @Controller('auth')
 export class AuthController {
@@ -32,14 +36,14 @@ export class AuthController {
   }
 
   @Get('user')
-  @UseGuards(RolesGuard, JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('user')
   user() {
     return 'user';
   }
 
   @Get('adminuser')
-  @UseGuards(RolesGuard, JwtAuthGuard)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles('admin', 'user')
   adminuser() {
     return 'adminuser';
@@ -110,5 +114,10 @@ export class AuthController {
   @UseGuards(GithubAuthGuard)
   async githubAuthRedirect(@Req() req) {
     return this.authService.findOrCreateOAuthUser(req.user, 'github');
+  }
+
+  @Get('hashPassword/:password')
+  async hashPassword(@Param('password') password: string) {
+    return await bcrypt.hash(password, 10);
   }
 }

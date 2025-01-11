@@ -36,7 +36,10 @@ export class UsersService {
       password,
       role,
     });
-    return this.userRepository.save(user);
+    const callback = await this.userRepository.save(user);
+    const { password: removedPassword, ...userWithoutPassword } = callback;
+    console.log(removedPassword);
+    return userWithoutPassword;
   }
 
   findAll() {
@@ -60,7 +63,7 @@ export class UsersService {
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+    return `This action updates a #${id} ${updateUserDto} user`;
   }
 
   remove(id: number) {

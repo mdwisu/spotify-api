@@ -5,7 +5,6 @@ import {
   Post,
   Req,
   Request,
-  Res,
   UseGuards,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
@@ -16,6 +15,7 @@ import { JwtAuthGuard } from '../guards/jwt-auth.guard';
 import { GoogleAuthGuard } from '../guards/google-auth.guard';
 import { GithubAuthGuard } from '../guards/github-auth.guard';
 import { JwtService } from '@nestjs/jwt';
+import { RegisterDto } from './dto/register.dto';
 
 @Controller('auth')
 export class AuthController {
@@ -23,16 +23,6 @@ export class AuthController {
     private authService: AuthService,
     private jwtService: JwtService,
   ) {}
-
-  @Get('sendmail')
-  sendMailer(@Res() response: any) {
-    const mail = this.authService.sendMail();
-
-    return response.status(200).json({
-      message: 'success',
-      mail,
-    });
-  }
 
   @Get('admin')
   @UseGuards(JwtAuthGuard, RolesGuard)
@@ -56,8 +46,13 @@ export class AuthController {
   }
 
   @Post('register')
-  async register(@Body() body) {
-    return this.authService.register(body);
+  async register(@Body() registerDto: RegisterDto) {
+    return this.authService.register(
+      registerDto.firstName,
+      registerDto.lastName,
+      registerDto.email,
+      registerDto.password,
+    );
   }
 
   @Post('set-password')

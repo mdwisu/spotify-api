@@ -19,17 +19,6 @@ export class AuthService {
     private mailService: MailerService,
   ) {}
 
-  sendMail() {
-    const message = `Forgot your password? If you didn't forget your password, please ignore this email!`;
-
-    this.mailService.sendMail({
-      // from: 'Kingsley Okure <kingsleyokgeorge@gmail.com>',
-      to: 'dwisusanto784@gmail.com',
-      subject: `How to Send Emails with Nodemailer`,
-      text: message,
-    });
-  }
-
   async setPassword(email: string, newPassword: string) {
     try {
       const user = await this.userRepository.findOneBy({ email });
@@ -49,29 +38,32 @@ export class AuthService {
 
   async validateUser(email: string, pass: string): Promise<any> {
     const user = await this.usersService.findByEmail(email);
-    if (user && user.password === pass) {
+    if (user && (await bcrypt.compare(pass, user.password))) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { password, ...result } = user;
       return result;
     } else if (user && !user.password) {
-      const token = this.jwtService.sign({ email });
-      const linkSetPassword = `${this.configService.get('FRONTEND_URL')}/auth/set-password?token=${token}`;
-      await this.mailService.sendMail({
-        to: email,
-        subject: 'Set Password',
-        html:
-          'klik link ini untuk membuat password <a href="' +
-          linkSetPassword +
-          '">Set Password</a>',
-      });
-
+      await this.sendSetPasswordEmail(email);
       return {
         message:
-          'Email ini sudah terdaftar melalui login Google atau GitHub. Silakan klik link di email untuk membuat password Anda.',
+          'Email ini sudah terdaftar melalui login Google atau GitHub, silakan login dengan itu atau klik link di email untuk membuat password Anda.',
         ignoreJwt: true,
       };
     }
     return null;
+  }
+
+  async sendSetPasswordEmail(email: string) {
+    const token = this.jwtService.sign({ email });
+    const linkSetPassword = `${this.configService.get('FRONTEND_URL')}/auth/set-password?token=${token}`;
+    await this.mailService.sendMail({
+      to: email,
+      subject: 'Set Password',
+      html:
+        'klik link ini untuk membuat password <a href="' +
+        linkSetPassword +
+        '">Set Password</a>',
+    });
   }
 
   async login(user: any) {
@@ -86,9 +78,14 @@ export class AuthService {
       access_token: this.jwtService.sign(payload),
     };
   }
-  async register(user: any) {
+  async register(
+    firstName: string,
+    lastName: string,
+    email: string,
+    password: string,
+  ) {
     const userExist = await this.userRepository.findOneBy({
-      email: user.email,
+      email,
     });
     if (userExist) {
       if (userExist.password) {
@@ -96,13 +93,22 @@ export class AuthService {
           message: 'User already exist',
         };
       } else {
+        await this.sendSetPasswordEmail(email);
         return {
           message:
-            'Email sudah terdaftar sebagai akun google atau github, silakan login dengan itu atau membuat password',
+            'Email ini sudah terdaftar melalui login Google atau GitHub, silakan login dengan itu atau klik link di email untuk membuat password Anda.',
         };
       }
     }
-    const newUser = this.userRepository.create(user);
+    // Hash password sebelum menyimpannya
+    const hashedPassword = await bcrypt.hash(password, 10);
+    password = hashedPassword;
+    const newUser = this.userRepository.create({
+      firstName,
+      lastName,
+      email,
+      password,
+    });
     return await this.userRepository.save(newUser);
   }
 

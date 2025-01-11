@@ -7,6 +7,7 @@ import { User } from '../users/entities/user.entity';
 import * as bcrypt from 'bcrypt';
 import { ConfigService } from '@nestjs/config';
 import { MailerService } from '@nestjs-modules/mailer';
+import { ArtistsService } from '../artists/artists.service';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +18,7 @@ export class AuthService {
     private userRepository: Repository<User>,
     private configService: ConfigService,
     private mailService: MailerService,
+    private artistService: ArtistsService,
   ) {}
 
   async setPassword(email: string, newPassword: string) {
@@ -110,84 +112,6 @@ export class AuthService {
       password,
     });
     return await this.userRepository.save(newUser);
-  }
-
-  async findOrCreateGoogleUser(googleUser: any) {
-    try {
-      let user = await this.userRepository.findOneBy({
-        email: googleUser.email,
-      });
-      if (!user) {
-        const newUser = this.userRepository.create({
-          email: googleUser.email,
-          firstName: googleUser.firstName,
-          lastName: googleUser.lastName,
-          googleId: googleUser.googleId,
-          role: 'user',
-        });
-        user = await this.userRepository.save(newUser);
-        console.log('Pengguna baru dibuat:', user);
-      } else if (!user.googleId) {
-        // Jika pengguna ada tapi tidak memiliki googleId, tambahkan googleId
-        user.googleId = googleUser.googleId;
-        user = await this.userRepository.save(user); // Perbarui pengguna
-        console.log('Google ID ditambahkan ke pengguna:', user);
-      }
-      // Siapkan payload untuk token JWT
-      const payload = {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        role: user.role,
-      };
-      // Generate JWT
-      const accessToken = this.jwtService.sign(payload);
-      return {
-        message: 'User logged in successfully',
-        access_token: accessToken,
-        user: payload, // Kembalikan data pengguna untuk frontend jika diperlukan
-      };
-    } catch (error) {
-      console.error(error);
-      throw new Error('Failed to process Google login. Please try again.');
-    }
-  }
-  async findOrCreateGitHubUser(githubUser: any) {
-    try {
-      console.log(githubUser);
-      let user = await this.userRepository.findOneBy({
-        email: githubUser.email,
-      });
-      if (!user) {
-        const newUser = this.userRepository.create({
-          githubId: githubUser.githubId,
-          email: githubUser.email,
-          firstName: githubUser.firstName,
-          lastName: githubUser.lastName,
-        });
-        user = await this.userRepository.save(newUser);
-        console.log('Pengguna baru dibuat:', user);
-      } else if (!user.githubId) {
-        user.githubId = githubUser.githubId;
-        console.log('Github ID ditambahkan ke pengguna:', user);
-      }
-      // Siapkan payload untuk token JWT
-      const payload = {
-        firstName: user.firstName,
-        lastName: user.lastName,
-        email: user.email,
-        role: user.role,
-      };
-      // Generate JWT
-      const accessToken = this.jwtService.sign(payload);
-      return {
-        message: 'User logged in successfully',
-        access_token: accessToken,
-        user: payload, // Kembalikan data pengguna untuk frontend jika diperlukan
-      };
-    } catch (error) {
-      console.log(error);
-    }
   }
 
   async findOrCreateOAuthUser(oauthUser: any, provider: 'google' | 'github') {

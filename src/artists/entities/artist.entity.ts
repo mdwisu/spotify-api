@@ -13,7 +13,7 @@ export class Artist {
   @PrimaryGeneratedColumn() // ID otomatis increment
   id: number;
 
-  @OneToOne(() => User, (user) => user.artist)
+  @OneToOne(() => User, (user) => user.artist, { onDelete: 'CASCADE' })
   @JoinColumn()
   user: User;
 

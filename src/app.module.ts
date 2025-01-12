@@ -23,6 +23,7 @@ import { APP_PIPE } from '@nestjs/core';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { MailerModule } from '@nestjs-modules/mailer';
+import { ArtistsModule } from './artists/artists.module';
 
 const devConfig = { port: 3000 };
 const proConfig = { port: 400 };
@@ -69,6 +70,7 @@ const proConfig = { port: 400 };
     UsersModule,
     TestModule,
     AuthModule,
+    ArtistsModule,
   ],
   controllers: [AppController],
   providers: [

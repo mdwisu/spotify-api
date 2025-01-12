@@ -29,7 +29,7 @@ export class User {
   @Column({ nullable: true, unique: true })
   githubId: string;
 
-  @OneToOne(() => Artist, (artist) => artist.user)
+  @OneToOne(() => Artist, (artist) => artist.user, { nullable: true })
   artist: Artist;
 
   // @OneToMany(() => Playlist, (playlist) => playlist.user)

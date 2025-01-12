@@ -1,11 +1,3 @@
-# ValidationPipe
-
-npm i class-validator class-transformer
-
-<!-- main.ts -->
-
-app.useGlobalPipes(new ValidationPipe());
-
-<!-- create middle ware -->
-
-nest g mi common/middleware/logger --no-spec --flat
+ada fitur
+authentikasi dengan local strategy, jwt strategy, oauth google github. dalam satu user, menggunakan passport
+ada fitur roles 

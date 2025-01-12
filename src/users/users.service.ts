@@ -1,8 +1,4 @@
-import {
-  Injectable,
-  InternalServerErrorException,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './entities/user.entity';
@@ -42,24 +38,20 @@ export class UsersService {
     return userWithoutPassword;
   }
 
-  findAll() {
-    return this.userRepository.find();
+  findAll(relations: string[] = []) {
+    return this.userRepository.find({ relations });
   }
 
-  async findOne(id: number) {
-    const user = await this.userRepository.findOne({ where: { id } });
-    if (!user) {
-      throw new NotFoundException(`User with ID ${id} not found`);
-    }
-    return user;
+  async createUser(userData: Partial<User>): Promise<User> {
+    const newUser = this.userRepository.create(userData);
+    return this.userRepository.save(newUser);
   }
 
-  async findByEmail(email: string) {
-    const user = await this.userRepository.findOneBy({ email });
-    if (!user) {
-      throw new NotFoundException(`User with email ${email} not found`);
-    }
-    return user;
+  async findOne(
+    where: Partial<Record<keyof User, any>>,
+    relations: string[] = [],
+  ) {
+    return this.userRepository.findOne({ where, relations });
   }
 
   update(id: number, updateUserDto: UpdateUserDto) {

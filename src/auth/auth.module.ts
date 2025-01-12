@@ -11,6 +11,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { User } from '../users/entities/user.entity';
 import { GoogleStrategy } from './google.strategy';
 import { GithubStrategy } from './github.strategy';
+import { ArtistsModule } from '../artists/artists.module';
 
 @Module({
   imports: [
@@ -22,6 +23,8 @@ import { GithubStrategy } from './github.strategy';
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '1h' },
     }),
+    ArtistsModule,
+    UsersModule,
   ],
   controllers: [AuthController],
   providers: [

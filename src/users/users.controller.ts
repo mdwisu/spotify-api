@@ -37,12 +37,16 @@ export class UsersController {
 
   @Get()
   findAll() {
-    return this.usersService.findAll();
+    return this.usersService.findAll(['artist']);
   }
 
   @Get(':id')
-  findByEmail(@Param('id') id: number) {
-    return this.usersService.findOne(id);
+  findById(@Param('id') id: number) {
+    return this.usersService.findOne({ id }, ['artist']);
+  }
+  @Get('pass/:id')
+  findByPass(@Param('id') id: number) {
+    return this.usersService.findOne({ password: id }, ['artist']);
   }
 
   @Patch(':id')

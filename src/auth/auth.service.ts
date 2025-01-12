@@ -19,11 +19,12 @@ export class AuthService {
     private configService: ConfigService,
     private mailService: MailerService,
     private artistService: ArtistsService,
+    private userService: UsersService,
   ) {}
 
   async setPassword(email: string, newPassword: string) {
     try {
-      const user = await this.userRepository.findOneBy({ email });
+      const user = await this.userService.findOne({ email });
       if (!user) {
         return { message: 'User not found' };
       }
@@ -39,11 +40,14 @@ export class AuthService {
   }
 
   async validateUser(email: string, pass: string): Promise<any> {
-    const user = await this.usersService.findByEmail(email);
+    const user = await this.usersService.findOne({ email }, ['artist']);
     if (user && (await bcrypt.compare(pass, user.password))) {
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const { password, ...result } = user;
-      return result;
+      console.log('ini user di validate user', user);
+      const { password, artist, ...result } = user;
+      return {
+        ...result,
+        artistId: artist?.id || null,
+      };
     } else if (user && !user.password) {
       await this.sendSetPasswordEmail(email);
       return {
@@ -61,10 +65,7 @@ export class AuthService {
     await this.mailService.sendMail({
       to: email,
       subject: 'Set Password',
-      html:
-        'klik link ini untuk membuat password <a href="' +
-        linkSetPassword +
-        '">Set Password</a>',
+      html: `klik link ini untuk membuat password <a href="${linkSetPassword}">Set Password</a>`,
     });
   }
 
@@ -74,6 +75,7 @@ export class AuthService {
       lastName: user.lastName,
       email: user.email,
       role: user.role,
+      artistId: user.artistId,
     };
     if (user.ignoreJwt) return { message: user.message };
     return {
